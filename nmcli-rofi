@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
 # default config
 FIELDS=SSID,SECURITY,BARS
 POSITION=0; XOFF=0; YOFF=0
@@ -8,7 +7,7 @@ MAGIC=-4
 FONT="DejaVu Sans Mono Bold 14"
 
 # supported locales (en, ru, de, fr, hi, ja)
-declare -A LOC_ENABLE=(["en"]="enabled" ["ru"]="включен" ["de"]="aktiviert" ["fr"]="activé" ["hi"]="सक्षम" ["ja"]="有効")
+#declare -A LOC_ENABLE=(["en"]="enabled" ["ru"]="включен" ["de"]="aktiviert" ["fr"]="activé" ["hi"]="सक्षम" ["ja"]="有効")
 
 # get current locale
 CURRLOCALE=$(locale | grep 'LANG=[a-z]*' -o | sed 's/^LANG=//g')
@@ -40,14 +39,16 @@ function toggle_wifi () {
 }
 
 function current_connection () {
-  currssid=$(iwgetid -r)
+  #currssid=$(iwgetid -r)
+  currssid="$(nmcli -f NAME,TYPE con show --active | grep wifi | awk '{print $1}')"
   [[ "$currssid" != '' ]] && currcon="Disconnect from $currssid" || currcon=""
   echo $currcon
 }
 
 function nmcli_list () {
   # get list of available connections without the active connection (if it's connected)
-  echo "$(nmcli --fields IN-USE,"$FIELDS" device wifi list | sed "s/^IN-USE\s//g" | sed '/*/d' | sed 's/^ *//')"
+  echo "$(nmcli --fields IN-USE,"$FIELDS" device wifi list | sed "s/^IN-USE\s//g" | sed 's/*/#/g' | sed 's/^ *//g')"
+
 }
 
 function count_lines () {
